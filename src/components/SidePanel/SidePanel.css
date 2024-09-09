@@ -1,0 +1,8 @@
+.side-panel {
+    position: fixed;
+    background-color: white;
+    left: 0px;
+    top: 150px;
+    padding: 1rem;
+    border: 1px solid black;
+}

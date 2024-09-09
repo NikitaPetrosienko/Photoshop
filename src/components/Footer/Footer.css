@@ -1,0 +1,29 @@
+.tools {
+  margin: 5px 0;
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+
+.color {
+  border-radius: 50%;
+}
+
+.img-info {
+  display: flex;
+  width: 100% !important;
+  position: fixed;
+  bottom: 0;
+  background-color: white;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.img__parameters {
+  display: flex;
+}
+
+.img__slider {
+  width: 200px;
+  margin-right: 5rem;
+}
