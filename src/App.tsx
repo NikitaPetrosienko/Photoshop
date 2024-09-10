@@ -84,6 +84,7 @@ function App() {
   useEffect(() => {
     changeImageScale(scale);
   }, [scale])
+  
 
   const imageUriToImgPromise = (uri: string): Promise<HTMLImageElement> => {
     return new Promise(function (resolve, _) {
@@ -224,46 +225,96 @@ function App() {
     })
   };
 
+  const onImgViewMouseMove = (e: React.MouseEvent) => {
+    if (currentTool !== 0) return; // Перемещение возможно только при активной руке
+    e.preventDefault();
+  
+    if (!dragRef.current.drag || !imgViewRef.current) return;
+  
+    const imgView = imgViewRef.current;
+    
+    const x = e.pageX - dragRef.current.startX;
+    const y = e.pageY - dragRef.current.startY;
+    
+    const walkX = x - dragRef.current.scrollX;
+    const walkY = y - dragRef.current.scrollY;
+    
+    // Добавляем условие для перемещения, даже если скролл неактивен
+    imgView.scrollLeft = Math.max(0, dragRef.current.scrollX - walkX);
+    imgView.scrollTop = Math.max(0, dragRef.current.scrollY - walkY);
+  
+    // Если изображение меньше контейнера, то всё равно двигаем его внутри
+    if (imgView.scrollWidth <= imgView.clientWidth || imgView.scrollHeight <= imgView.clientHeight) {
+      const offsetX = Math.min(Math.max(walkX, -imgView.clientWidth / 2), imgView.clientWidth / 2);
+      const offsetY = Math.min(Math.max(walkY, -imgView.clientHeight / 2), imgView.clientHeight / 2);
+      
+      imgView.style.transform = `translate(${offsetX}px, ${offsetY}px)`;
+    }
+  };
+  
+  
   const onImgViewMouseDown = (e: React.MouseEvent) => {
+    if (currentTool !== 0) return; // Срабатывание только при активной руке
+  
     const imgView = e.target as HTMLDivElement;
     dragRef.current = {
       ...dragRef.current,
       drag: true,
       startX: e.pageX - imgView.offsetLeft,
       startY: e.pageY - imgView.offsetTop,
+      scrollX: imgView.scrollLeft,
+      scrollY: imgView.scrollTop
     };
-    imgViewRef.current!!.style.cursor = "grabbing";
-  };
-
+  
+    imgViewRef.current!.style.cursor = "grabbing";
+  };  
+  
   const onImgViewMouseUp = () => {
     dragRef.current.drag = false;
-    imgViewRef.current!!.style.cursor = "auto";
-  }
-
-  const onImgViewMouseMove = (e: React.MouseEvent) => {
-    e.preventDefault();
-    if (!dragRef.current.drag || !imgViewRef.current ) return;
-    
-    const maxScrollLeft = imgViewRef.current.scrollWidth - imgViewRef.current.clientWidth;
-    const maxScrollTop = imgViewRef.current.scrollHeight - imgViewRef.current.clientHeight;
-
-    const imgView = e.target as HTMLDivElement;
-    const x = e.pageX - imgView.offsetLeft;
-    const y = e.pageY - imgView.offsetTop;
-    const walkX = (x - dragRef.current.startX) * 1;
-    const walkY = (y - dragRef.current.startY) * 1;
-
-    if ((imgViewRef.current.scrollLeft - walkX >= maxScrollLeft && maxScrollLeft !== 0) || (imgViewRef.current.scrollLeft - walkX < 0 && maxScrollLeft !== 0)) return
-    if ((imgViewRef.current.scrollTop - walkY >= maxScrollTop && maxScrollTop !== 0) || (imgViewRef.current.scrollTop - walkY < 0  && maxScrollTop !== 0)) return
-    
-    imgViewRef.current.scrollLeft = dragRef.current.scrollX - walkX;
-    dragRef.current.scrollX = dragRef.current.scrollX - walkX;
-    dragRef.current.startX = x;
-    
-    imgViewRef.current.scrollTop = dragRef.current.scrollY - walkY;
-    dragRef.current.scrollY = dragRef.current.scrollY - walkY;
-    dragRef.current.startY = y;
-  }
+    if (currentTool === 0) {
+      imgViewRef.current!.style.cursor = "grab";
+    } else {
+      imgViewRef.current!.style.cursor = "auto";
+    }
+  };
+  
+  // Обработчик стрелок для перемещения при большом изображении
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (currentTool !== 0) return; // Стрелки работают только при активной руке
+  
+    const imgView = imgViewRef.current;
+    if (!imgView) return;
+  
+    const step = e.shiftKey ? 50 : 10; // Ускоренное перемещение с Shift
+    switch (e.key) {
+      case 'ArrowUp':
+        imgView.scrollTop -= step;
+        break;
+      case 'ArrowDown':
+        imgView.scrollTop += step;
+        break;
+      case 'ArrowLeft':
+        imgView.scrollLeft -= step;
+        break;
+      case 'ArrowRight':
+        imgView.scrollLeft += step;
+        break;
+    }
+  };
+  
+  // Добавление и удаление обработчиков для стрелок
+  useEffect(() => {
+    if (currentTool === 0) {
+      window.addEventListener('keydown', onKeyDown);
+    } else {
+      window.removeEventListener('keydown', onKeyDown);
+    }
+  
+    return () => {
+      window.removeEventListener('keydown', onKeyDown);
+    };
+  }, [currentTool]);
+  
 
   const changeLoadedImage = (data: string) => {
     setLoadedImage({...loadedImage, imageUri: data});
