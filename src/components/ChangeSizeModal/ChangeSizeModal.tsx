@@ -13,7 +13,7 @@ const ChangeSizeModal = ({
   width,
   height,
   onChangeSizeSubmit,
-    closeModal
+  closeModal
 }: ChangeSizeModalProps) => {
   const [measure, setMeasure] = useState({
     type: 'pixels',
@@ -23,11 +23,13 @@ const ChangeSizeModal = ({
     pWidth: 100,
     pHeight: 100,
   });
+  const [originalDimensions, setOriginalDimensions] = useState({ width: width, height: height });
   const [_, setAlgorithm] = useState('closestNeighbour');
 
   useEffect(() => {
-    setMeasure({...measure, width: width, height: height});
-  }, [width, height])
+    setMeasure({ ...measure, width: width, height: height });
+    setOriginalDimensions({ width: width, height: height });
+  }, [width, height]);
 
   const onHeightChange = (e: KeyboardEvent<HTMLInputElement>) => {
     const value = parseInt((e.target as HTMLInputElement).value);
@@ -36,10 +38,14 @@ const ChangeSizeModal = ({
     }
     if (measure.proportionFix) {
       const proportion = value / measure.height;
-      return setMeasure({...measure, height: value, width: Math.round(measure.width * proportion) || 1 });
+      return setMeasure({
+        ...measure,
+        height: value,
+        width: Math.round(measure.width * proportion) || 1
+      });
     }
-    return setMeasure({...measure, height: value})
-  }
+    return setMeasure({ ...measure, height: value });
+  };
 
   const onWidthChange = (e: KeyboardEvent<HTMLInputElement>) => {
     const value = parseInt((e.target as HTMLInputElement).value);
@@ -48,10 +54,14 @@ const ChangeSizeModal = ({
     }
     if (measure.proportionFix) {
       const proportion = value / measure.width;
-      return setMeasure({...measure, width: value, height: Math.round(measure.height * proportion) || 1 });
+      return setMeasure({
+        ...measure,
+        width: value,
+        height: Math.round(measure.height * proportion) || 1
+      });
     }
-    return setMeasure({...measure, width: value})
-  }
+    return setMeasure({ ...measure, width: value });
+  };
 
   const onPHeightChange = (e: KeyboardEvent<HTMLInputElement>) => {
     const value = parseInt((e.target as HTMLInputElement).value);
@@ -60,10 +70,14 @@ const ChangeSizeModal = ({
     }
     const proportion = value / measure.pHeight;
     if (measure.proportionFix) {
-      return setMeasure({...measure, pHeight: value, pWidth: Math.round(measure.pWidth * proportion) || 1});
+      return setMeasure({
+        ...measure,
+        pHeight: value,
+        pWidth: Math.round(measure.pWidth * proportion) || 1
+      });
     }
-    return setMeasure({...measure, pHeight: value})
-  }
+    return setMeasure({ ...measure, pHeight: value });
+  };
 
   const onPWidthChange = (e: KeyboardEvent<HTMLInputElement>) => {
     const value = parseInt((e.target as HTMLInputElement).value);
@@ -72,18 +86,28 @@ const ChangeSizeModal = ({
     }
     const proportion = value / measure.pWidth;
     if (measure.proportionFix) {
-      return setMeasure({...measure, pWidth: value, pHeight: Math.round(measure.pHeight * proportion) || 1});
+      return setMeasure({
+        ...measure,
+        pWidth: value,
+        pHeight: Math.round(measure.pHeight * proportion) || 1
+      });
     }
-    return setMeasure({...measure, pWidth: value})
-  }
+    return setMeasure({ ...measure, pWidth: value });
+  };
 
   const calcWidthHeight = () => {
     if (measure.type === 'pixels') {
-      return [measure.width, measure.height]
+      return [measure.width, measure.height];
     } else {
-      return [Math.round(measure.width * measure.pWidth / 100), Math.round(measure.height * measure.pHeight / 100)]
+      return [
+        Math.round(measure.width * measure.pWidth / 100),
+        Math.round(measure.height * measure.pHeight / 100)
+      ];
     }
-  }
+  };
+
+  const originalPixels = originalDimensions.width * originalDimensions.height;
+  const newPixels = calcWidthHeight()[0] * calcWidthHeight()[1];
 
   return (
     <Flex vertical gap="large">
@@ -91,57 +115,57 @@ const ChangeSizeModal = ({
         <Space direction='vertical'>
           <Space>
             Высота
-            { measure.type === 'pixels'
+            {measure.type === 'pixels'
               ?
               <InputNumber
                 placeholder='height'
-                min={ 1 }
-                maxLength={ 4 }
-                value={ measure.height }
-                onPressEnter={ onHeightChange }
+                min={1}
+                maxLength={4}
+                value={measure.height}
+                onPressEnter={onHeightChange}
               />
               :
               <InputNumber
                 placeholder='height'
-                min={ 1 }
-                max={ 1000 }
-                value={ measure.pHeight }
-                onPressEnter={ onPHeightChange }
+                min={1}
+                max={1000}
+                value={measure.pHeight}
+                onPressEnter={onPHeightChange}
               />
             }
           </Space>
           <Space>
             <Checkbox
-              onClick={ () => setMeasure({...measure, proportionFix: !measure.proportionFix}) }
+              onClick={() => setMeasure({ ...measure, proportionFix: !measure.proportionFix })}
             >
               Сохранять пропорции
             </Checkbox>
           </Space>
           <Space>
             Ширина
-            { measure.type === 'pixels'
+            {measure.type === 'pixels'
               ?
               <InputNumber
                 placeholder='width'
-                min={ 1 }
-                maxLength={ 4 }
-                value={ measure.width }
-                onPressEnter={ onWidthChange }
+                min={1}
+                maxLength={4}
+                value={measure.width}
+                onPressEnter={onWidthChange}
               />
               :
               <InputNumber
                 placeholder='width'
-                min={ 1 }
-                max={ 1000 }
-                value={ measure.pWidth }
-                onPressEnter={ onPWidthChange }
+                min={1}
+                max={1000}
+                value={measure.pWidth}
+                onPressEnter={onPWidthChange}
               />
             }
           </Space>
         </Space>
         <Select
           defaultValue="pixels"
-          onChange={ (value) => setMeasure({...measure, type: value}) }
+          onChange={(value) => setMeasure({ ...measure, type: value })}
           options={[
             { value: 'pixels', label: 'px' },
             { value: 'percentage', label: '%' },
@@ -152,22 +176,26 @@ const ChangeSizeModal = ({
         Алгоритм интерполяции
         <Select
           defaultValue="closestNeighbour"
-          onChange={ (value) => setAlgorithm(value) }
+          onChange={(value) => setAlgorithm(value)}
           options={[
-            { value: 'closestNeighbour', label: 'Ближайший сосед'},
+            { value: 'closestNeighbour', label: 'Ближайший сосед' },
           ]}
         />
       </Space>
       <Space>
-        <Button type='primary' onClick={ () => {
+        <Button type='primary' onClick={() => {
           onChangeSizeSubmit(calcWidthHeight()[0], calcWidthHeight()[1]);
-          closeModal()
+          closeModal();
         }}>
           Изменить
         </Button>
       </Space>
+      <Space>
+        <div>Исходные пиксели: {originalPixels}</div>
+        <div>Пиксели после изменения: {newPixels}</div>
+      </Space>
     </Flex>
-  )
-}
+  );
+};
 
 export default ChangeSizeModal;
