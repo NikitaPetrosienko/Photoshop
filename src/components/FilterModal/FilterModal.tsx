@@ -66,42 +66,74 @@ const FilterModal = ({
       [...array.slice(0, 3)],
       [...array.slice(3, 6)],
       [...array.slice(6, 9)],
-    ]
+    ];
+  
+    // Для горизонтальных границ сейчас используются ядра для вертикальных
+    if (JSON.stringify(array) == JSON.stringify([1, 0, -1, 1, 0, -1, 1, 0, -1])) {
+      matrix = [
+        [1, 1, 1],
+        [0, 0, 0],
+        [-1, -1, -1],
+      ];
+    }
+  
+    // Для вертикальных границ сейчас используются ядра для горизонтальных
+    if (JSON.stringify(array) == JSON.stringify([1, 1, 1, 0, 0, 0, -1, -1, -1])) {
+      matrix = [
+        [1, 0, -1],
+        [1, 0, -1],
+        [1, 0, -1],
+      ];
+    }
+  
+    // Если фильтр соответствует Гауссову ядру, то нормализуем его
     if (JSON.stringify(array) == JSON.stringify([1, 2, 1, 2, 4, 2, 1, 2, 1])) {
-      matrix = matrix.map((el) => el.map((e) => e / 16)); 
+      matrix = matrix.map((el) => el.map((e) => e / 16));
     }
+  
     if (JSON.stringify(array) == JSON.stringify([1, 1, 1, 1, 1, 1, 1, 1, 1])) {
-      matrix = matrix.map((el) => el.map((e) => e / 9)); 
+      matrix = matrix.map((el) => el.map((e) => e / 9));
     }
-    return matrix; 
-  }
+  
+    return matrix;
+  };
 
   const makeFilteredData = () => {
     const [canvas, ctx] = getCanvasNCtx(imageRef);
     const canvasImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-    const srcData = canvasImageData.data
-    
+    const srcData = canvasImageData.data;
+      
     const [previewCanvas, _] = getCanvasNCtx(previewRef);
     
     previewCanvas.height = canvas.height;
     previewCanvas.width = canvas.width;
-
+  
     const newImageData = new Uint8ClampedArray(canvasImageData.width * canvasImageData.height * 4);
-
+  
+    // Преобразование фильтра в матрицу 3x3
     let kernel = arrayToMatrix(filterValues);
-    
+      
     const height = canvasImageData.height;
     const width = canvasImageData.width;
-
+  
     let imageMatrix = makeImageMatrix(srcData, width);
     imageMatrix = edgeMatrixPrepare(imageMatrix, width, height);
-
+  
     let pos = 0;
+  
+    // Нормализация значений, чтобы они оставались в диапазоне 0-255
+    const normalize = (value: number) => {
+      return Math.min(255, Math.max(0, value));
+    };
+  
+    // Применение свертки для каждого пикселя
     for (let y = 2; y <= height + 1; y++) {
-      for (let x = 8; x <= width * 4 + 4; x+=4) {
+      for (let x = 8; x <= width * 4 + 4; x += 4) {
         let R = 0;
         let G = 0;
         let B = 0;
+        
+        // Применение ядра фильтра к пикселю и его соседям
         for (let s = -1; s <= 1; s++) {
           for (let t = -1; t <= 1; t++) {
             R += kernel[s + 1][t + 1] * imageMatrix[y + t][x - 3 + s * 4];
@@ -109,17 +141,20 @@ const FilterModal = ({
             B += kernel[s + 1][t + 1] * imageMatrix[y + t][x - 1 + s * 4];
           }
         }
-        newImageData[pos] = R;
-        newImageData[pos + 1] = G;
-        newImageData[pos + 2] = B;
-        newImageData[pos + 3] = 255;  
+  
+        // Нормализация значений перед сохранением в итоговый массив
+        newImageData[pos] = normalize(R);
+        newImageData[pos + 1] = normalize(G);
+        newImageData[pos + 2] = normalize(B);
+        newImageData[pos + 3] = 255;  // Альфа-канал остается неизменным
         pos += 4;
       }
     }
+  
+    // Создание нового изображения с отфильтрованными данными
     const tempImageData = new ImageData(newImageData, canvas.width, canvas.height);
-
     return tempImageData;
-  }
+  };
 
   const renderPreview = () => {
     const [_, previewCtx] = getCanvasNCtx(previewRef);

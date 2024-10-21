@@ -24,7 +24,7 @@
   align-items: center;
   justify-content: space-between;
   width: 100%;
-  gap: 10px;
+  gap: 20px;
   flex-shrink: 0;
   padding: .5rem 2rem;
   background-color: #ffffff;
@@ -34,18 +34,23 @@
   left: 0;
   z-index: 1000;
 }
+.menu-btns {
+  display: flex;
+  gap: 20px; /* Увеличиваем расстояние между кнопками */
+}
 
 .ant-btn {
-  background-color: #4CAF50 !important; /* Приятный зелёный цвет */
+  background-color: #007BFF !important; /* Синий цвет кнопки */
   color: white !important;
   border: none !important;
   padding: 0.5rem 1rem;
   border-radius: 4px; /* Закругленные углы */
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Добавлена плавность изменения и трансформации */
 }
 
 .ant-btn:hover {
-  background-color: #45a049 !important; /* Цвет при наведении */
+  background-color: #0056b3 !important; /* Более тёмный синий при наведении */
+  transform: scale(1.05); /* Небольшое увеличение кнопки при наведении */
 }
 
 .work-panel {
@@ -74,17 +79,18 @@
 }
 
 button {
-  background-color: #4CAF50 !important;
+  background-color: #007BFF !important; /* Синий цвет */
   color: white !important;
   border: none !important;
   padding: 0.5rem 1rem;
   border-radius: 4px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  transition: background-color 0.3s ease, transform 0.2s ease; /* Плавные изменения */
 }
 
 button:hover {
-  background-color: #45a049 !important;
+  background-color: #0056b3 !important; /* Цвет при наведении */
+  transform: scale(1.05); /* Лёгкое увеличение при наведении */
 }
 
 .color-info {

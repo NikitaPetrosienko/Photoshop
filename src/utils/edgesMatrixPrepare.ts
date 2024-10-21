@@ -7,10 +7,10 @@ export default function edgeMatrixPrepare(imageMatrix: number[][], width: number
   }
 
   function setRGBA(x1: number, y1: number, x2: number, y2: number) {
-      newImageMatrix[y1][x1 - 3] = newImageMatrix[y2][x2 - 3];
-      newImageMatrix[y1][x1 - 2] = newImageMatrix[y2][x2 - 2];
-      newImageMatrix[y1][x1 - 1] = newImageMatrix[y2][x2 - 1];
-      newImageMatrix[y1][x1] = newImageMatrix[y2][x2];
+    newImageMatrix[y1][x1 - 3] = newImageMatrix[y2][x2 - 3];
+    newImageMatrix[y1][x1 - 2] = newImageMatrix[y2][x2 - 2];
+    newImageMatrix[y1][x1 - 1] = newImageMatrix[y2][x2 - 1];
+    newImageMatrix[y1][x1] = newImageMatrix[y2][x2];
   }
 
   for (let y = 1; y <= height; y++) {

@@ -19,3 +19,14 @@
   margin-top: 1em;
   display: flex;
 }
+/* Убираем темное выделение и задаем светлое */
+.ant-select-item-option-selected {
+  background-color: #e6f7ff !important; /* Светлый голубой фон */
+  color: black !important; /* Черный текст */
+}
+
+/* Изменяем цвет при наведении */
+.ant-select-item-option-active {
+  background-color: #f0f0f0 !important; /* Светло-серый фон при наведении */
+  color: black !important; /* Черный текст */
+}
